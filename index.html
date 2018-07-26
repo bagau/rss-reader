@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Feed Reader</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <form class="feed-form form-inline" id="feed-form">
+            <label class="mr-sm-2" for="rss-link">Введите адрес RSS ленты</label>
+            <input type="text" class="form-control mr-sm-3 mb-2 mb-sm-0" id="rss-link" placeholder="https://lenta.ru/rss/news">
+            <button type="submit" class="btn btn-primary">Читать</button>
+        </form>
+
+        <div class="feed-result" id="feed-result">
+            <div id="empty-message">Для того, чтобы читать RSS ленту, введите ее адрес в поле вверху...</div>
+            <div class="feed-result__loader" id="loader"></div>
+            <div class="feed-result__header" id="feed-header"></div>
+            <div class="feed-result__list" id="feed-list"></div>
+        </div>
+    </div>
+    <script id="header-template" type="text/x-handlebars-template">
+        <h3>{{title}}</h3>
+        <div class="feed-result__desc">{{{desc}}}</div>
+    </script>
+    <script id="item-template" type="text/x-handlebars-template">
+        <div class="feed-result__item">
+            <div><a href="{{link}}" class="feed-result__item-link" target="_blank">{{title}}</a></div>
+            <div class="feed-result__item-date"><i>{{date}}</i></div>
+            <div class="feed-result__item-desc">{{{desc}}}</div>
+        </div>
+    </script>
+    <script src="js/jquery-1.12.4.min.js"></script>
+    <script src="js/jquery.jfeed.js"></script>
+    <script src="node_modules/handlebars/dist/handlebars.min.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
