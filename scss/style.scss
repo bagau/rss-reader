@@ -7,13 +7,17 @@ body > .container {
 
 .feed-form {
   margin-bottom: 30px;
+
+  &__input {
+    width: 400px;
+  }
 }
 
 .feed-result {
   &__loader {
     display: none;
     width: 200px;
-    height: 100px;
+    height: 24px;
     background: url(../img/loader.svg) no-repeat center center;
     background-size: 100% auto;
   }
@@ -30,5 +34,11 @@ body > .container {
 
   &__item-date {
     font-size: 0.9em;
+  }
+}
+
+.message {
+  &.error {
+    color: #f00;
   }
 }

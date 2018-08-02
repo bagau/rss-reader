@@ -1,53 +1,127 @@
 function FeedReader() {
-    function setFeed(feed) {
-        if (feed === null) {
-            return false;
-        }
-
-        $('#empty-message').slideUp(300);
-        $('#loader').hide();
+    this.showFeed = function (feed) {
 
         var headerTemplate = Handlebars.compile($("#header-template").html());
+        $('#feed-header').html(headerTemplate({
+            title: feed.title,
+            desc: feed.description
+        }));
+
         var itemTemplate = Handlebars.compile($("#item-template").html());
 
-        var headerData  = {title: feed.title, desc: feed.description};
-        $('#feed-header').html(headerTemplate(headerData));
+        feed.items.forEach(function(item) {
+            var date = formatDate(new Date(item.updated));
 
-        feed.items.forEach(function(elem) {
-            var date = new Date(elem.updated);
-            var formattedDate = (date.getDate() < 10 ? "0" : "") + date.getDate() + "." + (date.getMonth() < 10 ? "0" : "") + (date.getMonth() + 1) + "." + date.getFullYear();
-            var itemData = {title: elem.title || "Заголовок новости", link: elem.link || "#", desc: elem.description || "Описание новости", date: formattedDate || ""};
-            $('#feed-list').append(itemTemplate(itemData));
+            $('#feed-list').append(itemTemplate({
+                title: item.title || "Заголовок отсутствует",
+                link: item.link || "#",
+                desc: item.description || "Описание отсутствует",
+                date: date,
+                guid: item.guid
+            }));
         });
+    };
+
+    this.cleanResult = function () {
+        $('#feed-header, #feed-list').html("");
+    };
+
+    function formatDate(date) {
+        var result = "Дата не указана";
+
+        if (isValidDate(date) === true) {
+            result = addZero(date.getDate()) + "." + addZero(date.getMonth() + 1) + "." + date.getFullYear();
+        }
+
+        return result;
     }
 
-    this.getFeed = function(url) {
+    /*
+    * Добавляет ноль к дате, если он однозначный
+    **/
+    function addZero(num) {
+        return num < 10 ? "0" + num : num;
+    }
+
+    /*
+    * Проверка даты на корректность
+    * */
+    function isValidDate(d) {
+        return d instanceof Date && !isNaN(d);
+    }
+
+    this.getFeed = function (url, success, error) {
         jQuery.getFeed({
             url: "https://cors.io/?" + url,
-            success: function(feed) {
-                setFeed(feed || null);
-                console.log(feed.items);
-            }
+            success: success,
+            error: error
         });
+    };
+
+    this.loader = function (isShown) {
+        if (isShown === true)
+            $('#loader').show(300);
+        else
+            $('#loader').hide(300);
+    };
+
+    this.message = function (msg, className) {
+        className = className || "";
+
+        if (msg) {
+            $('#message').addClass(className).text(msg).show(300);
+        } else {
+            $('#message').hide(300);
+        }
+    };
+
+    this.addToStorage = function() {
+        var localArray = localStorage.clickedIds || "";
+        var id = $(this).data('guid');
+
+        try {
+            localArray = JSON.parse(localArray);
+        }
+        catch(e) {
+            console.log(e);
+        }
+
+        localArray = localArray || [];
+        localArray.push(id);
+        localStorage.clickedIds.push(JSON.stringify(localArray));
     };
 }
 
-
-var feedReader = new FeedReader();
+var fr = new FeedReader();
 
 $(function() {
-    var lastRssLink = localStorage.rssLink;
-
-    if (lastRssLink !== undefined) {
-        $('#loader').show();
-        feedReader.getFeed(lastRssLink);
-    }
-
     $('#feed-form').submit(function(e) {
         e.preventDefault();
-        var rssLink = $('#rss-link').val();
-        localStorage.rssLink = rssLink;
-        $('#loader').show();
-        feedReader.getFeed(rssLink);
+        var url = $('#rss-link').val();
+
+        if (!url) {
+            fr.message("Вы не ввели ссылку на RSS ленту", "error");
+            return false;
+        }
+
+        fr.message(false);
+        fr.loader(true);
+
+        fr.getFeed(
+            url,
+            function(feed) {
+                fr.loader(false);
+                fr.showFeed(feed);
+            },
+            function() {
+                fr.loader(false);
+                fr.message("Не удалось получить RSS ленту", "error");
+            }
+        );
     });
+
+    //$(document).on('click', '.js-itemLink', fr.addToStorage);
 });
+
+
+// TODO: сделать выделение если прочитано, т.е. если было нажатие на ссылку новости
