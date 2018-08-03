@@ -14,7 +14,7 @@
             <button type="submit" class="btn btn-primary">Читать</button>
         </form>
 
-        <div class="feed-result" id="feed-result">
+        <div class="feed-result">
             <div class="message" id="message"></div>
             <div class="feed-result__loader" id="loader"></div>
             <div class="feed-result__header" id="feed-header"></div>
@@ -29,7 +29,7 @@
 
     <script id="item-template" type="text/x-handlebars-template">
         <div class="feed-result__item">
-            <div><a href="{{link}}" class="feed-result__item-link js-itemLink" data-id="{{{guid}}}" target="_blank">{{title}}</a></div>
+            <a href="{{link}}" class="feed-result__item-link js-itemLink" data-id="{{{id}}}" target="_blank">{{title}}</a>
             <div class="feed-result__item-date"><i>{{date}}</i></div>
             <div class="feed-result__item-desc">{{{desc}}}</div>
         </div>

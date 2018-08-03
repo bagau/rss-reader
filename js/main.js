@@ -1,31 +1,14 @@
 function FeedReader() {
-    this.showFeed = function (feed) {
-
-        var headerTemplate = Handlebars.compile($("#header-template").html());
-        $('#feed-header').html(headerTemplate({
-            title: feed.title,
-            desc: feed.description
-        }));
-
-        var itemTemplate = Handlebars.compile($("#item-template").html());
-
-        feed.items.forEach(function(item) {
-            var date = formatDate(new Date(item.updated));
-
-            $('#feed-list').append(itemTemplate({
-                title: item.title || "Заголовок отсутствует",
-                link: item.link || "#",
-                desc: item.description || "Описание отсутствует",
-                date: date,
-                guid: item.guid
-            }));
-        });
-    };
-
-    this.cleanResult = function () {
+    /*
+    * Очистка контейнера, куда выводится лента
+    * */
+    function cleanResult() {
         $('#feed-header, #feed-list').html("");
-    };
+    }
 
+    /*
+    * Форматирование даты
+    * */
     function formatDate(date) {
         var result = "Дата не указана";
 
@@ -37,7 +20,7 @@ function FeedReader() {
     }
 
     /*
-    * Добавляет ноль к дате, если он однозначный
+    * Добавление нуля к дате, если он однозначный
     **/
     function addZero(num) {
         return num < 10 ? "0" + num : num;
@@ -50,6 +33,34 @@ function FeedReader() {
         return d instanceof Date && !isNaN(d);
     }
 
+    /*
+    * Вывод списка новостей на страницу
+    **/
+    this.showFeed = function (feed) {
+        var headerTmpl = Handlebars.compile($("#header-template").html());
+        $('#feed-header').html(headerTmpl({
+            title: feed.title,
+            desc: feed.description
+        }));
+
+        var itemTmpl = Handlebars.compile($("#item-template").html());
+
+        feed.items.forEach(function(item) {
+            var date = formatDate(new Date(item.updated));
+
+            $('#feed-list').append(itemTmpl({
+                title: item.title || "Заголовок отсутствует",
+                link: item.link || "#",
+                desc: item.description || "Описание отсутствует",
+                date: date,
+                id: item.id
+            }));
+        });
+    };
+
+    /*
+    * Получение ленты по url
+    * */
     this.getFeed = function (url, success, error) {
         jQuery.getFeed({
             url: "https://cors.io/?" + url,
@@ -58,6 +69,9 @@ function FeedReader() {
         });
     };
 
+    /*
+    * Отображение и скрытие лоадера
+    * */
     this.loader = function (isShown) {
         if (isShown === true)
             $('#loader').show(300);
@@ -65,6 +79,9 @@ function FeedReader() {
             $('#loader').hide(300);
     };
 
+    /*
+    * Вывод сообщения пользователю
+    * */
     this.message = function (msg, className) {
         className = className || "";
 
@@ -75,20 +92,28 @@ function FeedReader() {
         }
     };
 
+    /*
+    * Запись в локальное хранилище id новости при клике на нее
+    * */
     this.addToStorage = function() {
-        var localArray = localStorage.clickedIds || "";
-        var id = $(this).data('guid');
+        var idJson = localStorage.ids, idArray;
 
         try {
-            localArray = JSON.parse(localArray);
-        }
-        catch(e) {
-            console.log(e);
+            idJson = JSON.parse(idJson);
+        } catch(e) {
+            idJson = "";
         }
 
-        localArray = localArray || [];
-        localArray.push(id);
-        localStorage.clickedIds.push(JSON.stringify(localArray));
+        idArray = idJson || [];
+
+        if (Array.isArray(idArray) === false) {
+            return false;
+        }
+
+        var id = $(this).data('id');
+        idArray.push(id);
+
+        localStorage.ids = JSON.stringify(idArray);
     };
 }
 
@@ -111,6 +136,7 @@ $(function() {
             url,
             function(feed) {
                 fr.loader(false);
+                console.log(feed);
                 fr.showFeed(feed);
             },
             function() {
@@ -120,8 +146,5 @@ $(function() {
         );
     });
 
-    //$(document).on('click', '.js-itemLink', fr.addToStorage);
+    $(document).on('click', '.js-itemLink', fr.addToStorage);
 });
-
-
-// TODO: сделать выделение если прочитано, т.е. если было нажатие на ссылку новости
