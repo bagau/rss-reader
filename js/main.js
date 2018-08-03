@@ -153,7 +153,6 @@ $(function() {
             url,
             function(feed) {
                 fr.loader(false);
-                console.log(feed);
                 fr.showFeed(feed);
             },
             function() {
