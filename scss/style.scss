@@ -8,8 +8,23 @@ body > .container {
 .feed-form {
   margin-bottom: 30px;
 
-  &__input {
+  .form-inline &__input {
     width: 400px;
+
+    @include media-breakpoint-up(sm) {
+      width: 400px;
+    }
+
+    @include media-breakpoint-down(md) {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+  }
+
+  @include media-breakpoint-down(sm) {
+    label {
+      margin-bottom: 5px;
+    }
   }
 }
 
@@ -30,6 +45,24 @@ body > .container {
 
   &__item-link {
     font-size: 1.3em;
+
+    &.is-visited {
+      position: relative;
+      color: #aaa;
+
+      &:after {
+        content: "";
+        display: inline-block;
+        position: absolute;
+        top: 50%;
+        right: -30px;
+        transform: translateY(-50%);
+        width: 24px;
+        height: 24px;
+        background: url("../img/open-book.svg") no-repeat center center;
+        background-size: contain;
+      }
+    }
   }
 
   &__item-date {

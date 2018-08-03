@@ -1,12 +1,5 @@
 function FeedReader() {
     /*
-    * Очистка контейнера, куда выводится лента
-    * */
-    function cleanResult() {
-        $('#feed-header, #feed-list').html("");
-    }
-
-    /*
     * Форматирование даты
     * */
     function formatDate(date) {
@@ -34,9 +27,33 @@ function FeedReader() {
     }
 
     /*
+    * Получение массива с id новостей из localstorage
+    * */
+    function getIdsFromStorage() {
+        var idJson = localStorage.ids;
+
+        try {
+            idJson = JSON.parse(idJson);
+        } catch(e) {
+            idJson = false;
+        }
+
+        return (!Array.isArray(idJson) || !idJson) ? [] : idJson;
+    }
+
+    /*
+    * Очистка контейнера, куда выводится лента
+    * */
+    this.cleanResult = function () {
+        $('#feed-header, #feed-list').html("");
+    };
+
+    /*
     * Вывод списка новостей на страницу
     **/
     this.showFeed = function (feed) {
+        var idsArray = getIdsFromStorage();
+
         var headerTmpl = Handlebars.compile($("#header-template").html());
         $('#feed-header').html(headerTmpl({
             title: feed.title,
@@ -48,12 +65,17 @@ function FeedReader() {
         feed.items.forEach(function(item) {
             var date = formatDate(new Date(item.updated));
 
+            var isVisited = jQuery.inArray(item.id, idsArray) > -1;
+
+            var visitedClass = isVisited ? "is-visited" : "";
+
             $('#feed-list').append(itemTmpl({
                 title: item.title || "Заголовок отсутствует",
                 link: item.link || "#",
                 desc: item.description || "Описание отсутствует",
                 date: date,
-                id: item.id
+                id: item.id,
+                visited: visitedClass
             }));
         });
     };
@@ -95,24 +117,18 @@ function FeedReader() {
     /*
     * Запись в локальное хранилище id новости при клике на нее
     * */
-    this.addToStorage = function() {
-        var idJson = localStorage.ids, idArray;
+    this.itemLinkClick = function() {
+        var idArray = getIdsFromStorage();
 
-        try {
-            idJson = JSON.parse(idJson);
-        } catch(e) {
-            idJson = "";
-        }
+        var id = $(this).data('id');
 
-        idArray = idJson || [];
-
-        if (Array.isArray(idArray) === false) {
+        if (id === undefined) {
             return false;
         }
 
-        var id = $(this).data('id');
-        idArray.push(id);
+        $(this).addClass('is-visited');
 
+        idArray.push(id);
         localStorage.ids = JSON.stringify(idArray);
     };
 }
@@ -129,6 +145,7 @@ $(function() {
             return false;
         }
 
+        fr.cleanResult();
         fr.message(false);
         fr.loader(true);
 
@@ -146,5 +163,5 @@ $(function() {
         );
     });
 
-    $(document).on('click', '.js-itemLink', fr.addToStorage);
+    $(document).on('click', '.js-itemLink', fr.itemLinkClick);
 });

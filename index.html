@@ -9,8 +9,8 @@
 <body>
     <div class="container">
         <form class="feed-form form-inline" id="feed-form">
-            <label class="mr-sm-2" for="rss-link">Введите адрес RSS ленты</label>
-            <input type="text" class="feed-form__input form-control mr-sm-3 mb-2 mb-sm-0" id="rss-link" placeholder="https://lenta.ru/rss/news">
+            <label class="mr-sm-3" for="rss-link">Введите адрес RSS ленты</label>
+            <input type="text" class="feed-form__input form-control mr-sm-3 xs-2" id="rss-link" placeholder="https://lenta.ru/rss/news">
             <button type="submit" class="btn btn-primary">Читать</button>
         </form>
 
@@ -23,13 +23,13 @@
     </div>
 
     <script id="header-template" type="text/x-handlebars-template">
-        <h3>{{title}}</h3>
+        <h3>{{{title}}}</h3>
         <div class="feed-result__desc">{{{desc}}}</div>
     </script>
 
     <script id="item-template" type="text/x-handlebars-template">
         <div class="feed-result__item">
-            <a href="{{link}}" class="feed-result__item-link js-itemLink" data-id="{{{id}}}" target="_blank">{{title}}</a>
+            <a href="{{link}}" class="feed-result__item-link js-itemLink {{visited}}" data-id="{{id}}" target="_blank">{{{title}}}</a>
             <div class="feed-result__item-date"><i>{{date}}</i></div>
             <div class="feed-result__item-desc">{{{desc}}}</div>
         </div>
